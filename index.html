@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="./script.js"></script>
+</head>
+<body>
+<textarea id="input-text" onchange="handleInputChange()" type="text"></textarea>
+<h3>
+    <span>Будет использовано </span>
+    <span id="textLength"></span>
+    <span> символов для перевода</span>
+</h3>
+<select id="select-lan">
+    <option value="BG">Болгарский</option>
+    <option value="CS">Чешский</option>
+    <option value="DA">Дацкий</option>
+    <option value="DE">Немецкий</option>
+    <option value="EL">Грецкий</option>
+    <option value="EN-US">Английский</option>
+    <option value="ES">Испанский</option>
+    <option value="ET">Эстонский</option>
+    <option value="FI">Финский</option>
+    <option value="FR">Французкий</option>
+    <option value="HU">Венгерский</option>
+    <option value="ID">Индонезский</option>
+    <option value="IT">Итальянский</option>
+    <option value="JA">Японский</option>
+    <option value="KO">Корейский</option>
+    <option value="LT">Литовский</option>
+    <option value="LV">Латышский</option>
+    <option value="NB">Норвежский</option>
+    <option value="NL">Голландский</option>
+    <option value="PL">Польский</option>
+    <option value="PT">Португальский</option>
+    <option value="RO">Румынский</option>
+    <option value="RU">Русский</option>
+    <option value="SK">Словацкий</option>
+    <option value="SL">Словенский</option>
+    <option value="SV">Шведский</option>
+    <option value="TR">Турецкий</option>
+    <option value="UK" selected>Украинский</option>
+    <option value="ZH">Китайский</option>
+</select>
+<button onclick="translateText()" type="button">Перевести</button>
+
+<h2 id="result"></h2>
+</body>
+
+</html>
