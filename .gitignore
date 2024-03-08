@@ -1,9 +1,7 @@
+/.idea
 /node_modules
 
-/.idea
+server/node_modules
 
-/server/node_modules
-
-/client/node_modules
-
-/.env
+client/node_modules
+client/dist

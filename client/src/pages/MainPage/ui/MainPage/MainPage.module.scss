@@ -1,0 +1,18 @@
+.disabled_list {
+    text-decoration: line-through;
+}
+
+.videoWrapper {
+    width: 640px;
+    height: 360px;
+    outline: 2px solid var(--primary-color);
+}
+
+.subtitles {
+    margin-top: 32px;
+}
+
+.textarea {
+    width: 100%;
+    padding: 15px;
+}

@@ -1,0 +1,14 @@
+.Page {
+    padding: 30px 100px;
+    min-height: calc(100vh - var(--navbar-heigth));
+    flex-shrink: 100;
+    flex-grow: 1;
+    position: relative;
+}
+
+@media (width <= 1000px) {
+    .Page {
+        padding: 15px 40px;
+    }
+
+}

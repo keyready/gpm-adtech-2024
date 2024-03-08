@@ -1,0 +1,15 @@
+:root {
+    --bg-color: #fff;
+    --inverted-bg-color: #000;
+
+    // текст
+    --primary-color: #000;
+    --inverted-primary-color: #383838;
+
+    // вторичный цвет
+    --secondary-color:  #4e4e4e;
+    --inverted-secondary-color: #04ff04;
+
+    // линки
+    --link-color: var(--secondary-color);
+}
