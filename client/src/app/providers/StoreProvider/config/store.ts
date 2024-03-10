@@ -3,6 +3,7 @@ import { $api } from 'shared/api/api';
 import { UIReducer } from 'features/UI';
 import { rtkApi } from 'shared/api/rtkApi';
 import { UserReducer } from 'entities/User';
+import { HistoryItemReducer } from 'entities/HistoryItem';
 import { createReducerManager } from './reducerManager';
 import { StateSchema } from './StateSchema';
 
@@ -14,6 +15,7 @@ export function CreateReduxStore(
         ...lazyReducers,
         ui: UIReducer,
         user: UserReducer,
+        historyItems: HistoryItemReducer,
         [rtkApi.reducerPath]: rtkApi.reducer,
     };
 

@@ -4,6 +4,7 @@
     flex-shrink: 100;
     flex-grow: 1;
     position: relative;
+    overflow: auto;
 }
 
 @media (width <= 1000px) {

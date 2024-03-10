@@ -11,10 +11,12 @@ import { rtkApi } from 'shared/api/rtkApi';
 import { UserSchema } from 'entities/User';
 import { WaitingAuthPageSchema } from 'pages/WaitingAuthPage';
 import { VideoSubtitlesSchema } from 'entities/VideoSubtitles';
+import { HistoryItemSchema } from 'entities/HistoryItem';
 
 export interface StateSchema {
     ui: UISchema;
     user: UserSchema;
+    historyItems: HistoryItemSchema;
     [rtkApi.reducerPath]: ReturnType<typeof rtkApi.reducer>;
 
     // asynchronous reducers

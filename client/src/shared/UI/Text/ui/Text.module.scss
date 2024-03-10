@@ -92,4 +92,23 @@
     }
 }
 
+.primaryColor {
+    .text {
+        color: var(--primary-color)
+    }
+
+    .title {
+        color: var(--primary-color)
+    }
+}
+
+.invertedColor {
+    .text {
+        color: var(--inverted-primary-color);
+    }
+
+    .title {
+        color: var(--inverted-primary-color);
+    }
+}
 

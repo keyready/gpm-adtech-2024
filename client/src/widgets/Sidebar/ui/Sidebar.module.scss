@@ -1,0 +1,21 @@
+.Sidebar {
+    width: 380px;
+    height: 100vh;
+    padding: 80px 30px;
+    background: var(--inverted-bg-color);
+    position: relative;
+    outline: 1px solid var(--sidebar-outline-color);
+    overflow-y: auto;
+}
+
+.list {
+    margin-top: 16px;
+}
+
+.logoutButton {
+    justify-content: center;
+    position: absolute;
+    bottom: 40px;
+    right: 30px;
+    left: 30px;
+}

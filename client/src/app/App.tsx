@@ -1,14 +1,17 @@
 import { classNames } from 'shared/lib/classNames/classNames';
 import { Suspense, useEffect } from 'react';
-import { Navbar } from 'widgets/Navbar';
 import { useAppDispatch } from 'shared/lib/hooks/useAppDispatch/useAppDispatch';
-import { UserActions } from 'entities/User';
+import { getUserData, UserActions } from 'entities/User';
+import { useSelector } from 'react-redux';
+import { Sidebar } from 'widgets/Sidebar';
+import { HStack } from 'shared/UI/Stack';
 import { AppRouter } from './providers/AppRouter';
 import { useTheme } from './providers/ThemeProvider';
 
 export const App = () => {
     const { theme } = useTheme();
 
+    const user = useSelector(getUserData);
     const dispatch = useAppDispatch();
     useEffect(() => {
         const user = localStorage.getItem('user');
@@ -21,7 +24,7 @@ export const App = () => {
     return (
         <div className={classNames('app', {}, [theme])}>
             <Suspense fallback="">
-                <Navbar />
+                {user && <Sidebar />}
                 <AppRouter />
             </Suspense>
         </div>

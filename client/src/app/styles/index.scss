@@ -1,4 +1,4 @@
-@import "primereact/resources/themes/viva-light/theme.css";
+@import "primereact/resources/themes/lara-dark-blue/theme.css";
 @import './flags.css';
 @import 'reset';
 @import 'variables/globals';
@@ -12,28 +12,21 @@
 }
 
 .app {
+    height: 100vh;
     background: var(--bg-color);
     display: flex;
-    flex-direction: column;
     position: relative;
-    min-height: 100vh;
-}
-
-.page {
-    display: flex;
 }
 
 *::-webkit-scrollbar {
-    width: 10px;
-    height: 15px;
+    width: 5px;
 }
 
 *::-webkit-scrollbar-track {
-    background: var(--card-bg);
+    background: #0A1117;
 }
 
 *::-webkit-scrollbar-thumb {
-    border: 2px solid var(--inverted-bg-color);
-    border-radius: 10px;
-    background-color: var(--bg-color);
+    border-radius: 2px;
+    background: var(--sidebar-outline-color);
 }

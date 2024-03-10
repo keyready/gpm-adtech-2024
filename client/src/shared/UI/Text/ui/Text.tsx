@@ -1,7 +1,13 @@
 import { classNames } from 'shared/lib/classNames/classNames';
 import { memo } from 'react';
-import { alignsMapper, headerTagMapper, sizeMapper, variantsMapper } from '../types/TextMappers';
-import { TextAlign, TextSize, TextVariant } from '../types/Text.types';
+import {
+    alignsMapper,
+    colorMapper,
+    headerTagMapper,
+    sizeMapper,
+    variantsMapper,
+} from '../types/TextMappers';
+import { TextAlign, TextSize, TextVariant, TextColor } from '../types/Text.types';
 import classes from './Text.module.scss';
 
 interface TextProps {
@@ -10,6 +16,7 @@ interface TextProps {
     textClassname?: string;
     title?: string;
     text?: string;
+    color?: TextColor;
     align?: TextAlign;
     size?: TextSize;
     variant?: TextVariant;
@@ -27,18 +34,21 @@ export const Text = memo((props: TextProps) => {
         textClassname,
         titleClassname,
         type = 'title',
+        color = 'primary',
     } = props;
 
     const variantsClasses = variantsMapper[variant];
     const alignsClasses = alignsMapper[align];
     const sizeClasses = sizeMapper[size];
     const HeaderTag = headerTagMapper[size];
+    const ColorClasses = colorMapper[color];
 
     const add = [
         className,
         variantsClasses,
         alignsClasses,
         sizeClasses,
+        ColorClasses,
         type === 'textType' ? classes.textType : '',
     ];
 

@@ -1,10 +1,11 @@
 :root {
-    --bg-color: #fff;
-    --inverted-bg-color: #000;
+    --bg-color: #0A1117;
+    --inverted-bg-color: linear-gradient(187.84deg, #121E28 0%, #0A1117 100%);
+    --sidebar-outline-color: #2A3744;
 
     // текст
-    --primary-color: #000;
-    --inverted-primary-color: #383838;
+    --primary-color: #FFF;
+    --inverted-primary-color: #0A1117;
 
     // вторичный цвет
     --secondary-color:  #4e4e4e;

@@ -1,12 +1,13 @@
 import { classNames } from 'shared/lib/classNames/classNames';
 import { Page } from 'widgets/Page';
 import React, { memo, useEffect } from 'react';
-import { Text } from 'shared/UI/Text';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch } from 'shared/lib/hooks/useAppDispatch/useAppDispatch';
-import { useSelector } from 'react-redux';
-import { getUserData } from 'entities/User';
 import { RoutePath } from 'shared/config/routeConfig/routeConfig';
+import MainLogoIcon from 'shared/assets/icons/main-logo.svg';
+import { Icon } from 'shared/UI/Icon/Icon';
+import { Text } from 'shared/UI/Text';
+import { YandexLoginButton } from 'widgets/YandexLoginButton';
+import { VStack } from 'shared/UI/Stack';
 import classes from './AuthPage.module.scss';
 
 interface AuthPageProps {
@@ -30,12 +31,11 @@ const AuthPage = memo((props: AuthPageProps) => {
 
     return (
         <Page className={classNames(classes.AuthPage, {}, [className])}>
-            <a
-                href="//oauth.yandex.ru/authorize?response_type=code&client_id=61097da35dd74417b54cf98806b71cbd"
-                rel="noreferrer"
-            >
-                войти через яндекс
-            </a>
+            <Icon Svg={MainLogoIcon} className={classes.logo} />
+            <VStack maxW gap="32" align="center">
+                <Text title="Авторизация" className={classes.title} />
+                <YandexLoginButton />
+            </VStack>
         </Page>
     );
 });

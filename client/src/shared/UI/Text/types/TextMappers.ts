@@ -1,5 +1,5 @@
 import classes from '../ui/Text.module.scss';
-import { HeaderTagType, TextAlign, TextSize, TextVariant } from './Text.types';
+import { HeaderTagType, TextAlign, TextColor, TextSize, TextVariant } from './Text.types';
 
 export const alignsMapper: Record<TextAlign, string> = {
     center: classes.center,
@@ -23,4 +23,9 @@ export const headerTagMapper: Record<TextSize, HeaderTagType> = {
     large: 'h1',
     medium: 'h2',
     small: 'h3',
+};
+
+export const colorMapper: Record<TextColor, string> = {
+    primary: classes.primaryColor,
+    inverted: classes.invertedColor,
 };

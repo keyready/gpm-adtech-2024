@@ -1,23 +1,20 @@
 import { Page } from 'widgets/Page';
 import { classNames } from 'shared/lib/classNames/classNames';
-import { Text } from 'shared/UI/Text';
 import { HStack, VStack } from 'shared/UI/Stack';
-import { YouTubePlayer } from 'shared/UI/YouTubePlayer';
-import { FormEvent, useCallback, useEffect, useState } from 'react';
+import React, { FormEvent, useCallback, useEffect, useState } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { useAppDispatch } from 'shared/lib/hooks/useAppDispatch/useAppDispatch';
 import { PageLoader } from 'shared/UI/PageLoader';
 import { createSubtitles } from 'entities/VideoSubtitles/model/service/createSubtitles';
-import { useSelector } from 'react-redux';
-import {
-    getVideoSubtitlesData,
-    getVideoSubtitlesError,
-    VideoSubtitlesReducer,
-} from 'entities/VideoSubtitles';
-import { InputTextarea } from 'primereact/inputtextarea';
-import { DynamicModuleLoader } from 'shared/lib/DynamicModuleLoader/DynamicModuleLoader';
 import { Dropdown, DropdownChangeEvent, DropdownProps } from 'primereact/dropdown';
+import { Icon } from 'shared/UI/Icon/Icon';
+import MainLogoIcon from 'shared/assets/icons/main-logo.svg';
+import { Divider } from 'primereact/divider';
+import { Skeleton } from 'primereact/skeleton';
+import YouTube from 'react-youtube';
+import { useNavigate } from 'react-router-dom';
+import { RoutePath } from 'shared/config/routeConfig/routeConfig';
 import classes from './MainPage.module.scss';
 
 interface ILanguage {
@@ -58,15 +55,14 @@ const groupedLanguage: ILanguage[] = [
 
 const MainPage = () => {
     const [videoUrl, setVideoUrl] = useState<string>('');
+    const [videoId, setVideoId] = useState<string>('');
 
     const [isVideoReady, setIsVideoReady] = useState<boolean>(false);
     const [isVideoProcessing, setIsVideoProcessing] = useState<boolean>(false);
     const [selectedLanguage, setSelectedLanguage] = useState<ILanguage>();
 
-    const subtitles = useSelector(getVideoSubtitlesData);
-    const videoError = useSelector(getVideoSubtitlesError);
-
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
     const handleFormSubmit = useCallback(
         async (event: FormEvent<HTMLFormElement>) => {
@@ -75,10 +71,20 @@ const MainPage = () => {
             const result = await dispatch(
                 createSubtitles({ url: videoUrl, targetLanguage: selectedLanguage?.code || '' }),
             );
+            if (result.meta.requestStatus === 'fulfilled') {
+                navigate(RoutePath.not_found);
+            }
             setIsVideoProcessing(false);
         },
         [dispatch, selectedLanguage?.code, videoUrl],
     );
+
+    useEffect(() => {
+        const id = videoUrl.match(
+            /(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=))([\w\-]{10,12})\b/,
+        );
+        if (id) setVideoId(id[1]);
+    }, [videoUrl]);
 
     const handleLanguageChange = useCallback((event: DropdownChangeEvent) => {
         event.preventDefault();
@@ -86,14 +92,10 @@ const MainPage = () => {
         setSelectedLanguage(language);
     }, []);
 
-    useEffect(() => {
-        console.log(selectedLanguage);
-    }, [selectedLanguage]);
-
     const selectedCountryTemplate = (option: ILanguage, props: DropdownProps) => {
         if (option) {
             return (
-                <div className="flex align-items-center">
+                <HStack maxW justify="start">
                     <img
                         alt={option.value}
                         src="https://primefaces.org/cdn/primereact/images/flag/flag_placeholder.png"
@@ -103,15 +105,14 @@ const MainPage = () => {
                         style={{ width: '18px' }}
                     />
                     <span>{option.value}</span>
-                </div>
+                </HStack>
             );
         }
 
         return <span>{props.placeholder}</span>;
     };
-
     const countryOptionTemplate = (option: ILanguage) => (
-        <div className="flex align-items-center">
+        <HStack maxW justify="start">
             <img
                 alt={option.value}
                 src="https://primefaces.org/cdn/primereact/images/flag/flag_placeholder.png"
@@ -121,73 +122,64 @@ const MainPage = () => {
                 style={{ width: '18px' }}
             />
             <span>{option.value}</span>
-        </div>
+        </HStack>
     );
 
+    if (isVideoProcessing) {
+        return (
+            <Page>
+                <PageLoader />
+            </Page>
+        );
+    }
+
     return (
-        <DynamicModuleLoader reducers={{ video: VideoSubtitlesReducer }}>
-            <Page className={classNames(classes.MainPage, {}, [])}>
-                {isVideoProcessing && <PageLoader />}
-                <span className="fi fi-gr" /> <span className="fi fi-gr fis" />
+        <Page className={classNames(classes.MainPage, {}, [])}>
+            <VStack maxW align="center">
+                <Icon Svg={MainLogoIcon} className={classes.logo} />
+                <Divider className={classes.divider} />
+
                 <form onSubmit={handleFormSubmit}>
-                    <VStack gap="32" maxW justify="center" align="center">
-                        <InputText
-                            placeholder="Введите ID-видео YouTube"
-                            value={videoUrl}
-                            onChange={(e) => setVideoUrl(e.target.value)}
-                        />
+                    <VStack maxW gap="16">
                         <Dropdown
-                            disabled={!videoUrl}
+                            className={classes.dropdown}
                             value={selectedLanguage?.value}
                             onChange={handleLanguageChange}
                             options={groupedLanguage}
                             optionLabel="value"
-                            placeholder="Выберите язык перевода"
+                            placeholder="Язык перевода"
                             itemTemplate={countryOptionTemplate}
                             valueTemplate={selectedCountryTemplate}
                         />
+                        <InputText
+                            value={videoUrl}
+                            onChange={(event) => setVideoUrl(event.target.value)}
+                            className={classes.dropdown}
+                            placeholder="Ссылка на видео, например: https://www.youtube.com/watch?v=Va17GepmQjo"
+                        />
                         <div className={classes.videoWrapper}>
-                            {videoUrl && (
-                                <YouTubePlayer
-                                    setIsVideoReady={setIsVideoReady}
-                                    videoUrl={videoUrl}
+                            {isVideoProcessing || !videoUrl || !selectedLanguage ? (
+                                <Skeleton width="100%" height="360px" />
+                            ) : (
+                                <YouTube
+                                    key={videoUrl}
+                                    className={classes.video}
+                                    videoId={videoId}
+                                    id={videoId}
+                                    onReady={() => setIsVideoReady(true)}
                                 />
                             )}
                         </div>
-                        {!subtitles?.subtitles && (
-                            <Button disabled={!isVideoReady || !videoUrl}>
-                                Отправить на перевод
-                            </Button>
-                        )}
+                        <Button
+                            disabled={!videoUrl || !selectedLanguage || !isVideoReady}
+                            className={classes.button}
+                        >
+                            Перевести
+                        </Button>
                     </VStack>
                 </form>
-                {subtitles?.subtitles && (
-                    <>
-                        <VStack className={classes.subtitles} maxW justify="start" gap="8">
-                            {subtitles?.subtitles.map((st) => (
-                                <HStack
-                                    align="start"
-                                    key={st.startAt + st.endAt}
-                                    justify="start"
-                                    gap="16"
-                                    maxW
-                                >
-                                    <InputText disabled value={`${st.startAt} - ${st.endAt}`} />
-                                    <InputTextarea
-                                        className={classes.textarea}
-                                        autoResize
-                                        value={st.text}
-                                        rows={5}
-                                    />
-                                </HStack>
-                            ))}
-                        </VStack>
-                        <Button>Отправить на озвучку</Button>
-                    </>
-                )}
-                {videoError && <Text title={videoError} variant="error" />}
-            </Page>
-        </DynamicModuleLoader>
+            </VStack>
+        </Page>
     );
 };
 
