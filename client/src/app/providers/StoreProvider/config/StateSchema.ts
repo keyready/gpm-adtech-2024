@@ -17,11 +17,11 @@ export interface StateSchema {
     ui: UISchema;
     user: UserSchema;
     historyItems: HistoryItemSchema;
+    video: VideoSubtitlesSchema;
     [rtkApi.reducerPath]: ReturnType<typeof rtkApi.reducer>;
 
     // asynchronous reducers
     waitingAuthPage?: WaitingAuthPageSchema;
-    video?: VideoSubtitlesSchema;
 }
 
 export type StateSchemaKey = keyof StateSchema;

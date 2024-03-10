@@ -1,7 +1,7 @@
 import { Page } from 'widgets/Page';
 import { classNames } from 'shared/lib/classNames/classNames';
 import { HStack, VStack } from 'shared/UI/Stack';
-import React, { FormEvent, useCallback, useEffect, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { useAppDispatch } from 'shared/lib/hooks/useAppDispatch/useAppDispatch';
@@ -15,6 +15,9 @@ import { Skeleton } from 'primereact/skeleton';
 import YouTube from 'react-youtube';
 import { useNavigate } from 'react-router-dom';
 import { RoutePath } from 'shared/config/routeConfig/routeConfig';
+import { useURLParams } from 'shared/url/useSearchParams/useSearchParams';
+import { VideoSubtitlesReducer } from 'entities/VideoSubtitles';
+import { DynamicModuleLoader } from 'shared/lib/DynamicModuleLoader/DynamicModuleLoader';
 import classes from './MainPage.module.scss';
 
 interface ILanguage {
@@ -54,6 +57,10 @@ const groupedLanguage: ILanguage[] = [
 ];
 
 const MainPage = () => {
+    useEffect(() => {
+        document.title = 'NexusX Team VideoTranslater';
+    }, []);
+
     const [videoUrl, setVideoUrl] = useState<string>('');
     const [videoId, setVideoId] = useState<string>('');
 
@@ -72,12 +79,16 @@ const MainPage = () => {
                 createSubtitles({ url: videoUrl, targetLanguage: selectedLanguage?.code || '' }),
             );
             if (result.meta.requestStatus === 'fulfilled') {
-                navigate(RoutePath.not_found);
+                navigate(RoutePath.subtitlesedit);
             }
             setIsVideoProcessing(false);
         },
-        [dispatch, selectedLanguage?.code, videoUrl],
+        [dispatch, navigate, selectedLanguage?.code, videoUrl],
     );
+
+    const handleVideoUrlChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+        setVideoUrl(event.target.value);
+    }, []);
 
     useEffect(() => {
         const id = videoUrl.match(
@@ -127,14 +138,14 @@ const MainPage = () => {
 
     if (isVideoProcessing) {
         return (
-            <Page>
+            <Page className={classNames(classes.MainPage, {}, [])}>
                 <PageLoader />
             </Page>
         );
     }
 
     return (
-        <Page className={classNames(classes.MainPage, {}, [])}>
+        <Page>
             <VStack maxW align="center">
                 <Icon Svg={MainLogoIcon} className={classes.logo} />
                 <Divider className={classes.divider} />
@@ -153,7 +164,7 @@ const MainPage = () => {
                         />
                         <InputText
                             value={videoUrl}
-                            onChange={(event) => setVideoUrl(event.target.value)}
+                            onChange={handleVideoUrlChange}
                             className={classes.dropdown}
                             placeholder="Ссылка на видео, например: https://www.youtube.com/watch?v=Va17GepmQjo"
                         />

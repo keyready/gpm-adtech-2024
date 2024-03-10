@@ -49,8 +49,6 @@ app.post('/user/yandex-auth', async (req, res) => {
 app.post('/video/upload', async (req, res) => {
     const { url } = req.body;
 
-    setTimeout(() => res.status(200).json({}), 3000);
-
     // const date = Date.now().toString();
     // fs.mkdirSync(path.resolve(__dirname, `./files/${date}`), { recursive: true });
     //
@@ -100,20 +98,21 @@ app.post('/video/upload', async (req, res) => {
     //         await stream.pipe(fileStream);
     //     });
     //
-    // return res.status(200).json({
-    //     subtitles: [
-    //         {
-    //             text: 'Accusantium aliquam consequuntur delectus dignissimos ea enim eum eveniet ipsa laborum, magni minima nesciunt nobis nulla, odit quod sequi suscipit, tempore veritatis voluptates. Delectus facilis obcaecati officiis perferendis.',
-    //             startAt: '00:00',
-    //             endAt: '00:13',
-    //         },
-    //         {
-    //             text: 'Accusantium aliquam consequuntur delectus dignissimos ea enim eum eveniet ipsa laborum, magni minima nesciunt nobis nulla, odit quod sequi suscipit, tempore veritatis voluptates. Delectus ex facilis obcaecati officiis perferendis.',
-    //             startAt: '00:13',
-    //             endAt: '00:21',
-    //         },
-    //     ],
-    // });
+    return res.status(200).json({
+        videoId: url,
+        subtitles: [
+            {
+                text: 'Accusantium aliquam consequuntur delectus dignissimos ea enim eum eveniet ipsa laborum, magni minima nesciunt nobis nulla, odit quod sequi suscipit, tempore veritatis voluptates. Delectus facilis obcaecati officiis perferendis.',
+                startAt: '00:00',
+                endAt: '00:13',
+            },
+            {
+                text: 'Accusantium aliquam consequuntur delectus dignissimos ea enim eum eveniet ipsa laborum, magni minima nesciunt nobis nulla, odit quod sequi suscipit, tempore veritatis voluptates. Delectus ex facilis obcaecati officiis perferendis.',
+                startAt: '00:13',
+                endAt: '00:21',
+            },
+        ],
+    });
 });
 
 app.get('/history/fetch_all', (req, res) =>

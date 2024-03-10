@@ -1,9 +1,10 @@
 interface Subtitle {
-    text: string;
+    text?: string;
     startAt: string;
     endAt: string;
 }
 
 export interface VideoSubtitles {
-    subtitles: Subtitle[];
+    subtitles?: Subtitle[];
+    videoId: string;
 }

@@ -1,7 +1,7 @@
 import { classNames } from 'shared/lib/classNames/classNames';
 import { Page } from 'widgets/Page';
 import React, { memo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { RoutePath } from 'shared/config/routeConfig/routeConfig';
 import MainLogoIcon from 'shared/assets/icons/main-logo.svg';
 import { Icon } from 'shared/UI/Icon/Icon';

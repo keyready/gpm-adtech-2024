@@ -4,6 +4,7 @@ import { UIReducer } from 'features/UI';
 import { rtkApi } from 'shared/api/rtkApi';
 import { UserReducer } from 'entities/User';
 import { HistoryItemReducer } from 'entities/HistoryItem';
+import { VideoSubtitlesReducer } from 'entities/VideoSubtitles';
 import { createReducerManager } from './reducerManager';
 import { StateSchema } from './StateSchema';
 
@@ -16,6 +17,7 @@ export function CreateReduxStore(
         ui: UIReducer,
         user: UserReducer,
         historyItems: HistoryItemReducer,
+        video: VideoSubtitlesReducer,
         [rtkApi.reducerPath]: rtkApi.reducer,
     };
 
