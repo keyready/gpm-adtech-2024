@@ -1,0 +1,14 @@
+.Menu {
+    position: relative;
+}
+
+.items {
+    padding: 12px;
+    border-radius: 12px;
+    background: lightgrey;
+    position: absolute;
+    top: 100%;
+    min-width: 300px;
+    right: 0;
+    outline: 1px solid #000;
+}

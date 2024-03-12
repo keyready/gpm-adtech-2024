@@ -1,0 +1,12 @@
+.AppLink {
+    display: flex;
+    align-items: center;
+    font: var(--font-m);
+    color: var(--link-color);
+
+    &:link,
+    &:visited {
+        color: var(--secondary-color);
+        text-decoration: none;
+    }
+}

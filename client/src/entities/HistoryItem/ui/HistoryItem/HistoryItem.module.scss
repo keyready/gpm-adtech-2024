@@ -1,0 +1,18 @@
+.divider {
+    width: 100%;
+    margin: 10px 0;
+    padding: 0;
+}
+
+.titleWrapper {
+    width: 100%;
+    display: block;
+}
+
+.link, .title {
+    width: 100%;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

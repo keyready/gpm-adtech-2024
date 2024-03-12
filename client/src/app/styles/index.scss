@@ -1,0 +1,32 @@
+@import "primereact/resources/themes/lara-dark-blue/theme.css";
+@import './flags.css';
+@import 'reset';
+@import 'variables/globals';
+@import 'themes/normal';
+
+.app,
+.app_modal,
+.app_drawer {
+    color: var(--primary-color);
+    font: var(--font-m);
+}
+
+.app {
+    height: 100vh;
+    background: var(--bg-color);
+    display: flex;
+    position: relative;
+}
+
+*::-webkit-scrollbar {
+    width: 5px;
+}
+
+*::-webkit-scrollbar-track {
+    background: #0A1117;
+}
+
+*::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+    background: var(--sidebar-outline-color);
+}
