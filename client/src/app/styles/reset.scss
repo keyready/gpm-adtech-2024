@@ -30,18 +30,6 @@ form {
     margin-right: 10px;
 }
 
-.p-steps.p-component.p-readonly {
-    width: 100%;
-
-    .p-menuitem-link {
-        background: transparent;
-    }
-}
-
-.p-tabview.p-component {
-    width: 75%;
-}
-
 .p-dropdown-items {
     li {
         list-style: none;
@@ -50,4 +38,6 @@ form {
 
 .p-dropdown-label.p-inputtext.p-placeholder {
     text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
 }

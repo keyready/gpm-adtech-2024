@@ -4,6 +4,7 @@ import { NotFound } from 'pages/NotFound';
 import { AuthPage } from 'pages/AuthPage';
 import { WaitingAuthPage } from 'pages/WaitingAuthPage';
 import { SubtitlesEditPage } from 'pages/SubtitlesEditPage';
+import { ResultPage } from 'pages/ResultPage';
 
 export type AppRoutesProps = RouteProps & {
     authOnly?: boolean;
@@ -14,6 +15,7 @@ export enum AppRoutes {
     AUTHORIZATION = 'authorization',
     WAITINGAUTH = 'waitingauth',
     SUBTITLESEDIT = 'subtitlesedit',
+    RESULT = 'result',
 
     // last
     NOT_FOUND = 'not_found',
@@ -24,6 +26,7 @@ export const RoutePath: Record<AppRoutes, string> = {
     [AppRoutes.WAITINGAUTH]: '/oauth',
     [AppRoutes.AUTHORIZATION]: '/forbidden',
     [AppRoutes.SUBTITLESEDIT]: '/edit',
+    [AppRoutes.RESULT]: '/result',
 
     // last
     [AppRoutes.NOT_FOUND]: '*',
@@ -42,6 +45,12 @@ export const routerConfig: Record<AppRoutes, AppRoutesProps> = {
     [AppRoutes.SUBTITLESEDIT]: {
         path: RoutePath.subtitlesedit,
         element: <SubtitlesEditPage />,
+        authOnly: true,
+    },
+    [AppRoutes.RESULT]: {
+        path: RoutePath.result,
+        element: <ResultPage />,
+        authOnly: true,
     },
     [AppRoutes.WAITINGAUTH]: {
         path: RoutePath.waitingauth,

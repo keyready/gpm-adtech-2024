@@ -6,6 +6,7 @@ import { VideoSubtitles } from '../types/VideoSubtitles';
 interface Props {
     url: string;
     targetLanguage: string;
+    sourceLanguage: string;
 }
 
 export const createSubtitles = createAsyncThunk<VideoSubtitles, Props, ThunkConfig<string>>(

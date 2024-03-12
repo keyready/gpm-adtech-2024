@@ -1,0 +1,11 @@
+.wrapper {
+    margin-top: 32px;
+}
+
+
+.link {
+    &:link, &:visited {
+        color: #0A1117;
+        text-decoration: none;
+    }
+}

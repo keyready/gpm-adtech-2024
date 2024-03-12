@@ -6,18 +6,16 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { useAppDispatch } from 'shared/lib/hooks/useAppDispatch/useAppDispatch';
 import { PageLoader } from 'shared/UI/PageLoader';
-import { createSubtitles } from 'entities/VideoSubtitles/model/service/createSubtitles';
+import { createSubtitles } from 'entities/VideoSubtitles';
 import { Dropdown, DropdownChangeEvent, DropdownProps } from 'primereact/dropdown';
 import { Icon } from 'shared/UI/Icon/Icon';
 import MainLogoIcon from 'shared/assets/icons/main-logo.svg';
+import RightArrowIcon from 'shared/assets/icons/right-arrow-icon.svg';
 import { Divider } from 'primereact/divider';
 import { Skeleton } from 'primereact/skeleton';
 import YouTube from 'react-youtube';
 import { useNavigate } from 'react-router-dom';
 import { RoutePath } from 'shared/config/routeConfig/routeConfig';
-import { useURLParams } from 'shared/url/useSearchParams/useSearchParams';
-import { VideoSubtitlesReducer } from 'entities/VideoSubtitles';
-import { DynamicModuleLoader } from 'shared/lib/DynamicModuleLoader/DynamicModuleLoader';
 import classes from './MainPage.module.scss';
 
 interface ILanguage {
@@ -67,6 +65,7 @@ const MainPage = () => {
     const [isVideoReady, setIsVideoReady] = useState<boolean>(false);
     const [isVideoProcessing, setIsVideoProcessing] = useState<boolean>(false);
     const [selectedLanguage, setSelectedLanguage] = useState<ILanguage>();
+    const [originalLanguage, setOriginalLanguage] = useState<ILanguage>();
 
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
@@ -76,14 +75,18 @@ const MainPage = () => {
             event.preventDefault();
             setIsVideoProcessing(true);
             const result = await dispatch(
-                createSubtitles({ url: videoUrl, targetLanguage: selectedLanguage?.code || '' }),
+                createSubtitles({
+                    url: videoUrl,
+                    sourceLanguage: originalLanguage?.code || '',
+                    targetLanguage: selectedLanguage?.code || '',
+                }),
             );
             if (result.meta.requestStatus === 'fulfilled') {
                 navigate(RoutePath.subtitlesedit);
             }
             setIsVideoProcessing(false);
         },
-        [dispatch, navigate, selectedLanguage?.code, videoUrl],
+        [dispatch, navigate, originalLanguage?.code, selectedLanguage?.code, videoUrl],
     );
 
     const handleVideoUrlChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -101,6 +104,12 @@ const MainPage = () => {
         event.preventDefault();
         const language = groupedLanguage.find((gl) => gl.value === event.value);
         setSelectedLanguage(language);
+    }, []);
+
+    const handleOriginalLanguageChange = useCallback((event: DropdownChangeEvent) => {
+        event.preventDefault();
+        const language = groupedLanguage.find((gl) => gl.value === event.value);
+        setOriginalLanguage(language);
     }, []);
 
     const selectedCountryTemplate = (option: ILanguage, props: DropdownProps) => {
@@ -152,16 +161,33 @@ const MainPage = () => {
 
                 <form onSubmit={handleFormSubmit}>
                     <VStack maxW gap="16">
-                        <Dropdown
-                            className={classes.dropdown}
-                            value={selectedLanguage?.value}
-                            onChange={handleLanguageChange}
-                            options={groupedLanguage}
-                            optionLabel="value"
-                            placeholder="Язык перевода"
-                            itemTemplate={countryOptionTemplate}
-                            valueTemplate={selectedCountryTemplate}
-                        />
+                        <div className={classes.languagesSelectors}>
+                            <Dropdown
+                                filter
+                                filterBy="value"
+                                className={classes.dropdown}
+                                value={originalLanguage?.value}
+                                onChange={handleOriginalLanguageChange}
+                                options={groupedLanguage}
+                                optionLabel="value"
+                                placeholder="Язык оригинала (опционально)"
+                                itemTemplate={countryOptionTemplate}
+                                valueTemplate={selectedCountryTemplate}
+                            />
+                            <Icon Svg={RightArrowIcon} className={classes.arrowIcon} />
+                            <Dropdown
+                                filter
+                                filterBy="value"
+                                className={classes.dropdown}
+                                value={selectedLanguage?.value}
+                                onChange={handleLanguageChange}
+                                options={groupedLanguage}
+                                optionLabel="value"
+                                placeholder="Язык перевода"
+                                itemTemplate={countryOptionTemplate}
+                                valueTemplate={selectedCountryTemplate}
+                            />
+                        </div>
                         <InputText
                             value={videoUrl}
                             onChange={handleVideoUrlChange}

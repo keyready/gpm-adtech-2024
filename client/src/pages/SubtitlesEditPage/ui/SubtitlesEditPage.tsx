@@ -1,6 +1,6 @@
 import { classNames } from 'shared/lib/classNames/classNames';
 import { Page } from 'widgets/Page';
-import React, { ChangeEvent, memo, useEffect, useState } from 'react';
+import React, { ChangeEvent, FormEvent, memo, useCallback, useEffect, useState } from 'react';
 import { Icon } from 'shared/UI/Icon/Icon';
 import MainLogoIcon from 'shared/assets/icons/main-logo.svg';
 import { Divider } from 'primereact/divider';
@@ -12,6 +12,13 @@ import YouTube from 'react-youtube';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { distance } from 'framer-motion';
+import { useAppDispatch } from 'shared/lib/hooks/useAppDispatch/useAppDispatch';
+import { createTranslation } from 'entities/VideoSubtitles/model/service/createTranslation';
+import { useNavigate } from 'react-router-dom';
+import { PageLoader } from 'shared/UI/PageLoader';
+import { createVoiceover } from 'entities/VideoSubtitles/model/service/createVoiceover';
+import { RoutePath } from 'shared/config/routeConfig/routeConfig';
 import classes from './SubtitlesEditPage.module.scss';
 
 interface SubtitlesEditPageProps {
@@ -25,11 +32,16 @@ const SubtitlesEditPage = memo((props: SubtitlesEditPageProps) => {
         document.title = 'Проверьте перевод видео';
     }, []);
 
+    const [isVideoTranslated, setIsVideoTranslated] = useState<boolean>(false);
+    const [isVideoTranslating, setIsVideoTranslating] = useState<boolean>(false);
     const [videoId, setVideoId] = useState<string>('');
     const [videoTitle, setVideoTitle] = useState<string>('');
     const [editedSubtitles, setEditedSubtitles] = useState<VideoSubtitles>();
 
     const subtitles = useSelector(getVideoSubtitlesData);
+
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
     useEffect(() => {
         setEditedSubtitles(subtitles);
@@ -45,14 +57,38 @@ const SubtitlesEditPage = memo((props: SubtitlesEditPageProps) => {
     }, [subtitles?.videoId]);
 
     const handleSubtitleChange = (event: ChangeEvent<HTMLTextAreaElement>, index: number) => {
-        // if (editedSubtitles) {
-        //     setEditedSubtitles((prevSubtitles) => {
-        //         const newSubtitles = [...prevSubtitles.subtitles];
-        //         newSubtitles[index].text = event.target.value;
-        //         return { ...prevSubtitles, subtitles: newSubtitles };
-        //     });
-        // }
+        if (editedSubtitles?.subtitles) {
+            const newSubtitles = [...editedSubtitles.subtitles];
+            const updatedSubtitle = { ...newSubtitles[index], text: event.target.value };
+            newSubtitles[index] = updatedSubtitle;
+            setEditedSubtitles((prevState) => ({ ...prevState, subtitles: newSubtitles }));
+        }
     };
+
+    const handleTranslateFormSubmit = useCallback(
+        async (event: FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            if (editedSubtitles && !isVideoTranslated) {
+                setIsVideoTranslating(true);
+                const result = await dispatch(createVoiceover(editedSubtitles));
+                setIsVideoTranslating(false);
+
+                if (result.meta.requestStatus === 'fulfilled') {
+                    document.title = 'Проверьте перевод видео';
+                    setIsVideoTranslated(true);
+                }
+            } else if (editedSubtitles && isVideoTranslated) {
+                setIsVideoTranslating(true);
+                const result = await dispatch(createVoiceover(editedSubtitles));
+                setIsVideoTranslating(false);
+
+                if (result.meta.requestStatus === 'fulfilled') {
+                    navigate(RoutePath.result);
+                }
+            }
+        },
+        [dispatch, editedSubtitles, isVideoTranslated, navigate],
+    );
 
     if (!subtitles?.subtitles?.length) {
         return (
@@ -67,6 +103,14 @@ const SubtitlesEditPage = memo((props: SubtitlesEditPageProps) => {
                         text="Попробуйте перейти на главную и начать заново"
                     />
                 </VStack>
+            </Page>
+        );
+    }
+
+    if (isVideoTranslating) {
+        return (
+            <Page className={classNames(classes.SubtitlesEditPage, {}, [])}>
+                <PageLoader />
             </Page>
         );
     }
@@ -90,30 +134,35 @@ const SubtitlesEditPage = memo((props: SubtitlesEditPageProps) => {
                         </div>
 
                         <Divider className={classes.divider} />
-                        <VStack className={classes.subtitles} maxW justify="start" gap="8">
-                            {editedSubtitles?.subtitles &&
-                                editedSubtitles?.subtitles.map((st, index) => (
-                                    <HStack
-                                        align="start"
-                                        key={st.startAt + st.endAt}
-                                        justify="start"
-                                        gap="16"
-                                        maxW
-                                    >
-                                        <InputText disabled value={`${st.startAt} - ${st.endAt}`} />
-                                        <InputTextarea
-                                            className={classes.textarea}
-                                            autoResize
-                                            value={st.text}
-                                            onChange={(e) => handleSubtitleChange(e, index)}
-                                            rows={5}
-                                        />
-                                    </HStack>
-                                ))}
-                            <Button className={classes.button} severity="secondary">
-                                Продолжить
-                            </Button>
-                        </VStack>
+                        <form onSubmit={handleTranslateFormSubmit}>
+                            <VStack className={classes.subtitles} maxW justify="start" gap="8">
+                                {editedSubtitles?.subtitles &&
+                                    editedSubtitles?.subtitles.map((st, index) => (
+                                        <HStack
+                                            align="start"
+                                            key={st.startAt + st.endAt}
+                                            justify="start"
+                                            gap="16"
+                                            maxW
+                                        >
+                                            <InputText
+                                                disabled
+                                                value={`${st.startAt} - ${st.endAt}`}
+                                            />
+                                            <InputTextarea
+                                                className={classes.textarea}
+                                                autoResize
+                                                value={st.text}
+                                                onChange={(e) => handleSubtitleChange(e, index)}
+                                                rows={5}
+                                            />
+                                        </HStack>
+                                    ))}
+                                <Button className={classes.button} severity="secondary">
+                                    {isVideoTranslated ? 'Озвучить' : 'Перевести'}
+                                </Button>
+                            </VStack>
+                        </form>
                     </>
                 )}
             </VStack>

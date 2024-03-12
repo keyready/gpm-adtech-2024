@@ -35,6 +35,8 @@ const translator = new deepl.Translator(authKey);
 app.use(express.json());
 app.use(cors());
 
+app.use('/files', express.static(path.resolve(__dirname, '../files/')));
+
 app.post('/user/yandex-auth', async (req, res) => {
     const { code } = req.body;
 
@@ -50,49 +52,198 @@ app.post('/user/yandex-auth', async (req, res) => {
 app.post('/video/upload', async (req, res) => {
     const { url } = req.body;
 
-    const date = Date.now().toString();
-    fs.mkdirSync(path.resolve(__dirname, `./files/${date}`), { recursive: true });
+    const date = Date.now();
+    fs.mkdirSync(path.resolve(__dirname, `../files/${date.toString()}`), { recursive: true });
 
-    const outputPathVideo = path.resolve(__dirname, `files/${date}/video.mp4`);
-    const outputPathAudio = path.resolve(__dirname, `files/${date}/audio.mp3`);
-    const outputPathTextOriginal = path.resolve(__dirname, `files/${date}/textOr.txt`);
-    const outputPathTextTranslated = path.resolve(__dirname, `files/${date}/textTr.txt`);
+    const outputPathVideo = path.resolve(__dirname, `../files/${date.toString()}/video.mp4`);
+    const outputPathAudio = path.resolve(__dirname, `../files/${date.toString()}/audio.mp3`);
+    const outputPathTextOriginal = path.resolve(
+        __dirname,
+        `../files/${date.toString()}/textOr.json`,
+    );
+    const outputPathTextTranslated = path.resolve(
+        __dirname,
+        `../files/${date.toString()}/textTr.txt`,
+    );
     const videoURL = url;
 
-    console.log('обработка видео запущена');
+    console.log(`>\t|\tОбработка видео запущена\t${date.toString()}`);
 
     ytdl(videoURL)
         .pipe(fs.createWriteStream(outputPathVideo))
         .on('finish', async () => {
-            console.log('Загрузка завершена');
+            console.log(
+                `<\t|\tЗагрузка завершена\t\t+ ${((Date.now() - date) % 60000).toFixed(2)} c`,
+            );
 
             await extractAudio({
                 input: outputPathVideo, // Путь к вашему видеофайлу
                 output: outputPathAudio, // Имя выходного файла аудио
             });
-
-            console.log('Аудио успешно извлечено');
-
-            const transcript = JSON.parse(
-                (await submitVideoForTranscription(outputPathAudio)).replace('\\"', '"'),
+            console.log(
+                `<\t|\tАудио успешно извлечено\t\t+ ${((Date.now() - date) % 60000).toFixed(2)} c`,
             );
-            console.log(transcript.result.sentences);
+
+            console.log(
+                `>\t|\tНачат процесс транскрибации\t+ ${((Date.now() - date) % 60000).toFixed(
+                    2,
+                )} c`,
+            );
+            // const transcriptResult = await submitVideoForTranscription(outputPathAudio);
+            console.log(
+                `<\t|\tТранскрибация успешно завершена\t+ ${((Date.now() - date) % 60000).toFixed(
+                    2,
+                )} c`,
+            );
+
+            // const result = JSON.parse(transcriptResult.result.replace('\\"', '"'));
+            const result = {
+                sentences: [
+                    { bt: '00:00:04,034', et: '00:00:05,734', s: 'My Invisalign has...', seq: 1 },
+                    {
+                        bt: '00:00:05,754',
+                        et: '00:00:07,054',
+                        s: 'I have taken out my Invisalign.',
+                        seq: 2,
+                    },
+                    {
+                        bt: '00:00:07,054',
+                        et: '00:00:09,294',
+                        s: 'I have taken out my Invisalign, and this is the album.',
+                        seq: 3,
+                    },
+                    { bt: '00:00:09,494', et: '00:00:09,854', s: 'Ah!', seq: 4 },
+                    {
+                        bt: '00:00:34,166',
+                        et: '00:00:36,966',
+                        s: 'I have taken out my Invisalign, and this is the album.',
+                        seq: 5,
+                    },
+                    {
+                        bt: '00:01:03,490',
+                        et: '00:01:06,142',
+                        s: "I'm that bad type, make your mama sad type",
+                        seq: 6,
+                    },
+                    {
+                        bt: '00:01:06,453',
+                        et: '00:01:09,953',
+                        s: 'Make your girlfriend mad type, might seduce your dad type',
+                        seq: 7,
+                    },
+                    { bt: '00:01:10,533', et: '00:01:12,713', s: "I'm the bad guy", seq: 8 },
+                    { bt: '00:01:14,082', et: '00:01:14,613', s: 'Duh', seq: 9 },
+                    { bt: '00:01:14,613', et: '00:01:22,942', s: "I'm the bad guy", seq: 10 },
+                    {
+                        bt: '00:01:33,442',
+                        et: '00:01:36,638',
+                        s: "If you know that you don't own me",
+                        seq: 11,
+                    },
+                    {
+                        bt: '00:01:36,994',
+                        et: '00:01:41,886',
+                        s: "I'll let you play the role, I'll be your animal",
+                        seq: 12,
+                    },
+                    {
+                        bt: '00:01:42,073',
+                        et: '00:01:47,358',
+                        s: 'My mommy likes to sing along with me',
+                        seq: 13,
+                    },
+                    {
+                        bt: '00:01:47,682',
+                        et: '00:01:52,993',
+                        s: "But she won't sing this song if she meets all the ladies",
+                        seq: 14,
+                    },
+                    {
+                        bt: '00:01:52,993',
+                        et: '00:01:56,153',
+                        s: "She'll pity the men I know",
+                        seq: 15,
+                    },
+                    {
+                        bt: '00:01:56,613',
+                        et: '00:01:59,518',
+                        s: "So you're a tough guy, like you're really rough guy",
+                        seq: 16,
+                    },
+                    {
+                        bt: '00:01:59,810',
+                        et: '00:02:03,053',
+                        s: "Just can't get enough guy, chest always so puffed guy",
+                        seq: 17,
+                    },
+                    {
+                        bt: '00:02:03,053',
+                        et: '00:02:03,293',
+                        s: "You're a tough guy, like you're really rough guy",
+                        seq: 18,
+                    },
+                    {
+                        bt: '00:02:04,619',
+                        et: '00:02:06,879',
+                        s: "I'm that bad type, make your mama sad type",
+                        seq: 19,
+                    },
+                    {
+                        bt: '00:02:06,879',
+                        et: '00:02:10,378',
+                        s: 'Make your girlfriend mad type, might seduce your dad type',
+                        seq: 20,
+                    },
+                    { bt: '00:02:11,009', et: '00:02:13,139', s: "I'm the bad guy", seq: 21 },
+                    { bt: '00:02:14,679', et: '00:02:15,639', s: 'Duh', seq: 22 },
+                    { bt: '00:02:20,514', et: '00:02:24,139', s: "I'm the bad guy", seq: 23 },
+                    { bt: '00:02:24,139', et: '00:02:24,159', s: 'Duh', seq: 24 },
+                    {
+                        bt: '00:03:01,698',
+                        et: '00:03:03,625',
+                        s: 'You said she scared of me?',
+                        seq: 25,
+                    },
+                    {
+                        bt: '00:03:03,625',
+                        et: '00:03:06,045',
+                        s: "I mean, I don't see what she sees",
+                        seq: 26,
+                    },
+                    {
+                        bt: '00:03:06,125',
+                        et: '00:03:08,478',
+                        s: "But maybe it's cause I'm wearing your cologne",
+                        seq: 27,
+                    },
+                ],
+                version: 1,
+            };
+
             // const config = {
             //     audio_url: outputPathAudio,
             //     language_code: 'ru',
             // };
             // const transcript = await client.transcripts.create(config);
 
-            fs.writeFile(outputPathTextOriginal, transcript.result, (err) => {
-                if (err) {
-                    console.error('Ошибка при сохранении файла:', err);
-                } else {
-                    console.log('Текст успешно сохранен в файл');
-                    return res.status(200).json({
-                        videoId: url,
-                        subtitles: transcript.result.sentences,
-                    });
-                }
+            // fs.writeFile(
+            //     outputPathTextOriginal,
+            //     transcriptResult.result.replace('\\"', '"'),
+            //     (err) => {
+            //         if (err) {
+            //             console.error('Ошибка при сохранении файла:', err);
+            //         } else {
+            //             console.log('Текст успешно сохранен в файл');
+            //         }
+            //     },
+            // );
+            return res.status(200).json({
+                videoId: url,
+                subtitles: result.sentences.map((sentence) => ({
+                    text: sentence.s,
+                    startAt: sentence.bt,
+                    endAt: sentence.et,
+                })),
             });
 
             // const result = await translator.translateText(transcript.text, null, 'en-us');
@@ -108,22 +259,22 @@ app.post('/video/upload', async (req, res) => {
             // const stream = await PlayHTAPI.stream(result.text);
             // await stream.pipe(fileStream);
         });
+});
 
-    // return res.status(200).json({
-    //     videoId: url,
-    //     subtitles: [
-    //         {
-    //             text: 'Accusantium aliquam consequuntur delectus dignissimos ea enim eum eveniet ipsa laborum, magni minima nesciunt nobis nulla, odit quod sequi suscipit, tempore veritatis voluptates. Delectus facilis obcaecati officiis perferendis.',
-    //             startAt: '00:00',
-    //             endAt: '00:13',
-    //         },
-    //         {
-    //             text: 'Accusantium aliquam consequuntur delectus dignissimos ea enim eum eveniet ipsa laborum, magni minima nesciunt nobis nulla, odit quod sequi suscipit, tempore veritatis voluptates. Delectus ex facilis obcaecati officiis perferendis.',
-    //             startAt: '00:13',
-    //             endAt: '00:21',
-    //         },
-    //     ],
-    // });
+app.post('/video/translate', (req, res) => {
+    const { body } = req;
+
+    return res.status(200).json(body);
+});
+
+app.post('/video/voiceover', (req, res) => {
+    const { body } = req;
+
+    return res.status(200).json({
+        videoSrc: '1710251730069/video.mp4',
+        voiceoverSrc: '1710251730069/audio.mp3',
+        subtitlesSrc: '1710251730069/textOr.json',
+    });
 });
 
 app.get('/history/fetch_all', (req, res) =>

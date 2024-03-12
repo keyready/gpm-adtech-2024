@@ -2,7 +2,6 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import webpack from 'webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
-import CircularDependencyPlugin from 'circular-dependency-plugin';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import { BuildOptions } from './config/types';
 
@@ -30,12 +29,7 @@ export function buildPlugins({
         }),
 
         new CopyPlugin({
-            patterns: [{ from: paths.staticFrom, to: paths.staticTo }]
-        }),
-
-        new CircularDependencyPlugin({
-            exclude: /node_modules/,
-            failOnError: true,
+            patterns: [{ from: paths.staticFrom, to: paths.staticTo }],
         }),
 
         new ForkTsCheckerWebpackPlugin({
