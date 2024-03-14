@@ -21,7 +21,6 @@ export const HistoryItem = memo((props: HistoryItemProps) => {
             <Text
                 className={classes.titleWrapper}
                 title={item.title}
-                size="small"
                 titleClassname={classes.title}
             />
             <AppLink target="_blank" to={item.url} className={classes.link}>
