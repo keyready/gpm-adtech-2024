@@ -27,6 +27,7 @@
     "playht": "^0.9.8",
     "querystring": "^0.2.1",
     "request": "^2.88.2",
+    "srt2ass": "^1.4.3",
     "ytdl-core": "^4.11.5"
   }
 }

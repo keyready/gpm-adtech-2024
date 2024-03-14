@@ -15,6 +15,7 @@ const ffmpegPath = ffmpeg.path;
 const ffmpegFluent = require('fluent-ffmpeg');
 const submitVideoForTranscription = require('./api/getSubtitles');
 const { createVoiceover } = require('./api/createVoiceover');
+const { convertCustomSubtitlesToSRT } = require('./api/createSubtitles');
 
 ffmpegFluent.setFfmpegPath(ffmpegPath);
 
@@ -70,6 +71,14 @@ app.post('/video/upload', async (req, res) => {
     const outputPathTextTranslated = path.resolve(
         __dirname,
         `../files/${date.toString()}/translated_subtitles.json`,
+    );
+    const outputPathTranslatedSubtitles = path.resolve(
+        __dirname,
+        `../files/${date.toString()}/translated_subtitles.srt`,
+    );
+    const outputPathSubtitledVideo = path.resolve(
+        __dirname,
+        `../files/${date.toString()}/result_video.mp4`,
     );
     const videoURL = url;
 
@@ -152,6 +161,14 @@ app.post('/video/upload', async (req, res) => {
                 }
             });
 
+            convertCustomSubtitlesToSRT(result, outputPathTranslatedSubtitles);
+            console.log(
+                `>\t|\tПереведенные субтитры конвертированы в SRT\t+ ${(
+                    (Date.now() - date) %
+                    60000
+                ).toFixed(2)} c`,
+            );
+
             console.log(
                 `>\t|\tНачат процесс озвучивания\t+ ${((Date.now() - date) % 60000).toFixed(2)} c`,
             );
@@ -159,6 +176,23 @@ app.post('/video/upload', async (req, res) => {
             console.log(
                 `<\t|\tОзвучка сохранена в файл\t+ ${((Date.now() - date) % 60000).toFixed(2)} c`,
             );
+
+            ffmpegFluent(outputPathVideo)
+                .videoCodec('libx264')
+                .audioCodec('libmp3lame')
+                .outputOptions(`-vf subtitles=../files/${date}/translated_subtitles.srt`)
+                .save(outputPathSubtitledVideo)
+                .on('end', () => {
+                    console.log(
+                        `<\t|\tНа видео наложены субтитры\t+ ${(
+                            (Date.now() - date) %
+                            60000
+                        ).toFixed(2)} c`,
+                    );
+                })
+                .on('error', (err) => {
+                    console.error(`An error occurred: ${err.message}`);
+                });
 
             return res.status(200).json({});
         });
