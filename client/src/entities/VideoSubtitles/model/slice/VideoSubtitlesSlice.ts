@@ -3,6 +3,7 @@ import { createSubtitles } from '../service/createSubtitles';
 import { VideoSubtitlesSchema } from '../types/VideoSubtitlesSchema';
 import { createVoiceover } from '../service/createVoiceover';
 import { createTranslation } from '../service/createTranslation';
+import { createLocalVideoSubtitles } from '../service/createLocalVideoSubtitles';
 
 const initialState: VideoSubtitlesSchema = {
     data: undefined,
@@ -35,11 +36,24 @@ export const VideoSubtitlesSlice = createSlice({
                 state.error = action.payload;
             })
 
+            .addCase(createLocalVideoSubtitles.pending, (state) => {
+                state.error = undefined;
+                state.isLoading = true;
+            })
+            .addCase(createLocalVideoSubtitles.fulfilled, (state, action: PayloadAction<any>) => {
+                state.isLoading = false;
+                state.data = action.payload;
+            })
+            .addCase(createLocalVideoSubtitles.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
+
             .addCase(createVoiceover.pending, (state) => {
                 state.error = undefined;
                 state.isLoading = true;
             })
-            .addCase(createVoiceover.fulfilled, (state, action: PayloadAction<any>) => {
+            .addCase(createVoiceover.fulfilled, (state) => {
                 state.isLoading = false;
             })
             .addCase(createVoiceover.rejected, (state, action) => {
@@ -51,7 +65,7 @@ export const VideoSubtitlesSlice = createSlice({
                 state.error = undefined;
                 state.isLoading = true;
             })
-            .addCase(createTranslation.fulfilled, (state, action: PayloadAction<any>) => {
+            .addCase(createTranslation.fulfilled, (state) => {
                 state.isLoading = false;
             })
             .addCase(createTranslation.rejected, (state, action) => {

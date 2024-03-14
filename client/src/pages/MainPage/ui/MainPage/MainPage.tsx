@@ -12,10 +12,12 @@ import { Icon } from 'shared/UI/Icon/Icon';
 import MainLogoIcon from 'shared/assets/icons/main-logo.svg';
 import RightArrowIcon from 'shared/assets/icons/right-arrow-icon.svg';
 import { Divider } from 'primereact/divider';
-import { Skeleton } from 'primereact/skeleton';
 import YouTube from 'react-youtube';
 import { useNavigate } from 'react-router-dom';
 import { RoutePath } from 'shared/config/routeConfig/routeConfig';
+import { VideoUploader } from 'widgets/VideoUploader';
+import { Text } from 'shared/UI/Text';
+import { createLocalVideoSubtitles } from 'entities/VideoSubtitles/model/service/createLocalVideoSubtitles';
 import classes from './MainPage.module.scss';
 
 interface ILanguage {
@@ -64,8 +66,10 @@ const MainPage = () => {
 
     const [isVideoReady, setIsVideoReady] = useState<boolean>(false);
     const [isVideoProcessing, setIsVideoProcessing] = useState<boolean>(false);
-    const [selectedLanguage, setSelectedLanguage] = useState<ILanguage>();
-    const [originalLanguage, setOriginalLanguage] = useState<ILanguage>();
+    const [selectedLanguage, setSelectedLanguage] = useState<ILanguage | null>();
+    const [originalLanguage, setOriginalLanguage] = useState<ILanguage | null>();
+
+    const [localVideo, setLocalVideo] = useState<File | null>();
 
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
@@ -74,19 +78,29 @@ const MainPage = () => {
         async (event: FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             setIsVideoProcessing(true);
-            const result = await dispatch(
-                createSubtitles({
-                    url: videoUrl,
-                    sourceLanguage: originalLanguage?.code || '',
-                    targetLanguage: selectedLanguage?.code || '',
-                }),
-            );
+
+            let result: any;
+
+            if (localVideo) {
+                const formData = new FormData();
+                formData.append('video', localVideo);
+                result = await dispatch(createLocalVideoSubtitles(formData));
+            } else {
+                result = await dispatch(
+                    createSubtitles({
+                        url: videoUrl,
+                        sourceLanguage: originalLanguage?.code || '',
+                        targetLanguage: selectedLanguage?.code || '',
+                    }),
+                );
+            }
+
             if (result.meta.requestStatus === 'fulfilled') {
                 navigate(RoutePath.subtitlesedit);
             }
             setIsVideoProcessing(false);
         },
-        [dispatch, navigate, originalLanguage?.code, selectedLanguage?.code, videoUrl],
+        [dispatch, localVideo, navigate, originalLanguage?.code, selectedLanguage?.code, videoUrl],
     );
 
     const handleVideoUrlChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -110,6 +124,14 @@ const MainPage = () => {
         event.preventDefault();
         const language = groupedLanguage.find((gl) => gl.value === event.value);
         setOriginalLanguage(language);
+    }, []);
+
+    const handleResetClick = useCallback(() => {
+        setLocalVideo(null);
+        setVideoUrl('');
+        setVideoId('');
+        setSelectedLanguage(null);
+        setOriginalLanguage(null);
     }, []);
 
     const selectedCountryTemplate = (option: ILanguage, props: DropdownProps) => {
@@ -188,16 +210,16 @@ const MainPage = () => {
                                 valueTemplate={selectedCountryTemplate}
                             />
                         </div>
-                        <InputText
-                            value={videoUrl}
-                            onChange={handleVideoUrlChange}
-                            className={classes.dropdown}
-                            placeholder="Ссылка на видео, например: https://www.youtube.com/watch?v=Va17GepmQjo"
-                        />
-                        <div className={classes.videoWrapper}>
-                            {isVideoProcessing || !videoUrl || !selectedLanguage ? (
-                                <Skeleton width="100%" height="360px" />
-                            ) : (
+                        {!localVideo && (
+                            <InputText
+                                value={videoUrl}
+                                onChange={handleVideoUrlChange}
+                                className={classes.dropdown}
+                                placeholder="Ссылка на видео, например: https://www.youtube.com/watch?v=Va17GepmQjo"
+                            />
+                        )}
+                        {videoUrl && selectedLanguage && (
+                            <div className={classes.videoWrapper}>
                                 <YouTube
                                     key={videoUrl}
                                     className={classes.video}
@@ -205,14 +227,33 @@ const MainPage = () => {
                                     id={videoId}
                                     onReady={() => setIsVideoReady(true)}
                                 />
-                            )}
-                        </div>
-                        <Button
-                            disabled={!videoUrl || !selectedLanguage || !isVideoReady}
-                            className={classes.button}
-                        >
-                            Перевести
-                        </Button>
+                            </div>
+                        )}
+
+                        {!videoUrl && !localVideo && (
+                            <Divider>
+                                <Text text="Или загрузите видео с устройства" />
+                            </Divider>
+                        )}
+
+                        {!videoUrl && <VideoUploader setLocalVideo={setLocalVideo} />}
+
+                        <HStack justify="end" maxW gap="16">
+                            <Button
+                                className={classes.button}
+                                severity="danger"
+                                type="button"
+                                onClick={handleResetClick}
+                            >
+                                Сбросить
+                            </Button>
+                            <Button
+                                disabled={!(selectedLanguage && (localVideo || videoUrl))}
+                                className={classes.button}
+                            >
+                                Перевести
+                            </Button>
+                        </HStack>
                     </VStack>
                 </form>
             </VStack>
