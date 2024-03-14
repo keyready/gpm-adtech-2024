@@ -7,24 +7,20 @@ const ytdl = require('ytdl-core');
 const dotenv = require('dotenv');
 const deepl = require('deepl-node');
 const fs = require('fs');
-const PlayHTAPI = require('playht');
-const submitVideoForTranscription = require('./api/getSubtitles');
 
 const ffmpeg = require('@ffmpeg-installer/ffmpeg');
 const extractAudio = require('ffmpeg-extract-audio');
 
 const ffmpegPath = ffmpeg.path;
 const ffmpegFluent = require('fluent-ffmpeg');
+const submitVideoForTranscription = require('./api/getSubtitles');
+const { createVoiceover } = require('./api/createVoiceover');
 
 ffmpegFluent.setFfmpegPath(ffmpegPath);
 
 dotenv.config({ path: '../.env' });
 const client = new AssemblyAI({
     apiKey: 'd8d36f62fd7644038b1b3495e061387a',
-});
-PlayHTAPI.init({
-    apiKey: process.env.PLAYHT_API_KEY,
-    userId: process.env.PLAYHT_USER_ID,
 });
 
 const authKey = process.env.DEEPLTOKEN;
@@ -55,15 +51,25 @@ app.post('/video/upload', async (req, res) => {
     const date = Date.now();
     fs.mkdirSync(path.resolve(__dirname, `../files/${date.toString()}`), { recursive: true });
 
-    const outputPathVideo = path.resolve(__dirname, `../files/${date.toString()}/video.mp4`);
-    const outputPathAudio = path.resolve(__dirname, `../files/${date.toString()}/audio.mp3`);
+    const outputPathVideo = path.resolve(
+        __dirname,
+        `../files/${date.toString()}/original_video.mp4`,
+    );
+    const outputPathAudio = path.resolve(
+        __dirname,
+        `../files/${date.toString()}/original_audio.mp3`,
+    );
+    const outputPathTranslatedAudio = path.resolve(
+        __dirname,
+        `../files/${date.toString()}/translated_audio.mp3`,
+    );
     const outputPathTextOriginal = path.resolve(
         __dirname,
-        `../files/${date.toString()}/textOr.json`,
+        `../files/${date.toString()}/original_subtitles.json`,
     );
     const outputPathTextTranslated = path.resolve(
         __dirname,
-        `../files/${date.toString()}/textTr.txt`,
+        `../files/${date.toString()}/translated_subtitles.json`,
     );
     const videoURL = url;
 
@@ -98,12 +104,6 @@ app.post('/video/upload', async (req, res) => {
 
             const result = JSON.parse(transcriptResult.result.replace('\\"', '"'));
 
-            // const config = {
-            //     audio_url: outputPathAudio,
-            //     language_code: 'ru',
-            // };
-            // const transcript = await client.transcripts.create(config);
-
             fs.writeFile(
                 outputPathTextOriginal,
                 transcriptResult.result.replace('\\"', '"'),
@@ -111,31 +111,56 @@ app.post('/video/upload', async (req, res) => {
                     if (err) {
                         console.error('Ошибка при сохранении файла:', err);
                     } else {
-                        console.log('Текст успешно сохранен в файл');
+                        console.log(
+                            `<\t|\tСубтитры сохранены в файл\t+ ${(
+                                (Date.now() - date) %
+                                60000
+                            ).toFixed(2)} c`,
+                        );
                     }
                 },
             );
-            return res.status(200).json({
-                videoId: url,
-                subtitles: result.sentences.map((sentence) => ({
-                    text: sentence.s,
-                    startAt: sentence.bt,
-                    endAt: sentence.et,
-                })),
+            // return res.status(200).json({
+            //     videoId: url,
+            //     subtitles: result.sentences.map((sentence) => ({
+            //         text: sentence.s,
+            //         startAt: sentence.bt,
+            //         endAt: sentence.et,
+            //     })),
+            // });
+
+            const text2Translate = result.sentences.map((s) => s.s).join('\n');
+            const translationResult = await translator.translateText(text2Translate, null, 'en-us');
+
+            const translationSplitted = translationResult.text.split('\n');
+
+            result.sentences.forEach((sentence, index) => {
+                if (translationSplitted[index]) {
+                    sentence.s = translationSplitted[index];
+                }
             });
 
-            // const result = await translator.translateText(transcript.text, null, 'en-us');
-            // fs.writeFile(outputPathTextTranslated, result.text, (err) => {
-            //     if (err) {
-            //         console.error('Ошибка при сохранении файла:', err);
-            //     } else {
-            //         console.log('Текст успешно сохранен в файл');
-            //     }
-            // });
-            //
-            // const fileStream = fs.createWriteStream(outputPathAudio);
-            // const stream = await PlayHTAPI.stream(result.text);
-            // await stream.pipe(fileStream);
+            fs.writeFile(outputPathTextTranslated, JSON.stringify(result), (err) => {
+                if (err) {
+                    console.error('Ошибка при сохранении файла:', err);
+                } else {
+                    console.log(
+                        `<\t|\tПеревод сохранен в файл\t+ ${((Date.now() - date) % 60000).toFixed(
+                            2,
+                        )} c`,
+                    );
+                }
+            });
+
+            console.log(
+                `>\t|\tНачат процесс озвучивания\t+ ${((Date.now() - date) % 60000).toFixed(2)} c`,
+            );
+            await createVoiceover(translationResult.text, outputPathTranslatedAudio);
+            console.log(
+                `<\t|\tОзвучка сохранена в файл\t+ ${((Date.now() - date) % 60000).toFixed(2)} c`,
+            );
+
+            return res.status(200).json({});
         });
 });
 
