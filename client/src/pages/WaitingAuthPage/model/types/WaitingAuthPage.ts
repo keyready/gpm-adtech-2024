@@ -1,5 +1,6 @@
 export interface WaitingAuthPage {
     code: string;
+    service: string;
 }
 
 export interface WaitingAuthPageSchema {

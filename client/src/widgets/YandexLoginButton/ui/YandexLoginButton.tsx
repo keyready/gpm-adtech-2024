@@ -10,10 +10,11 @@ import classes from './YandexLoginButton.module.scss';
 
 interface YandexLoginButtonProps {
     className?: string;
+    type?: 'classic' | 'short';
 }
 
 export const YandexLoginButton = memo((props: YandexLoginButtonProps) => {
-    const { className } = props;
+    const { className, type = 'classic' } = props;
 
     const navigate = useNavigate();
 
@@ -27,11 +28,11 @@ export const YandexLoginButton = memo((props: YandexLoginButtonProps) => {
         <Button
             severity="info"
             onClick={handleYandexLoginClick}
-            className={classNames(classes.YandexLoginButton, {}, [className])}
+            className={classNames('', {}, [className])}
         >
             <HStack maxW gap="16">
                 <Icon Svg={YandexLoginIcon} className={classes.YandexLoginIcon} />
-                <Text color="inverted" title="Войти с Яндекс ID" size="small" />
+                {type === 'classic' && <Text color="inverted" title="Яндекс ID" size="small" />}
             </HStack>
         </Button>
     );

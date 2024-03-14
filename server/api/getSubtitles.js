@@ -5,7 +5,7 @@ const { randomUUID } = require('crypto');
 
 const API_KEY_ID = 'ifkysbDK5BE0Ds3S';
 const API_KEY_SECRET = 'ZvBBWZGsqr2GeJ2C';
-const LANG = 'en';
+const LANG = 'ru';
 const RESULT_TYPE = 2;
 
 module.exports = async function submitVideoForTranscription(filePath) {

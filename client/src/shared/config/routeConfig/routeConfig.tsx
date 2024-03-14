@@ -23,7 +23,7 @@ export enum AppRoutes {
 
 export const RoutePath: Record<AppRoutes, string> = {
     [AppRoutes.MAIN]: '/',
-    [AppRoutes.WAITINGAUTH]: '/oauth',
+    [AppRoutes.WAITINGAUTH]: '/oauth/*',
     [AppRoutes.AUTHORIZATION]: '/forbidden',
     [AppRoutes.SUBTITLESEDIT]: '/edit',
     [AppRoutes.RESULT]: '/result',

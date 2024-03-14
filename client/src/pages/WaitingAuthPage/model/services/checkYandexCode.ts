@@ -10,7 +10,7 @@ export const checkYandexCode = createAsyncThunk<User, WaitingAuthPage, ThunkConf
         const { extra, rejectWithValue, dispatch } = thunkAPI;
 
         try {
-            const response = await extra.api.post<User>('/user/yandex-auth', props);
+            const response = await extra.api.post<User>('/user/oauth', props);
 
             if (!response.data) {
                 throw new Error();
